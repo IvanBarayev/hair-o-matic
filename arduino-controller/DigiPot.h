@@ -8,6 +8,7 @@ private :
 public :
 	DigiPot (int ioPin);
 	void write (word outputValue);
+	void writeVolts (double volts);
 };
 
 #endif

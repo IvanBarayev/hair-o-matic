@@ -1,13 +1,11 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "DigiPot.h"
-// const word outputValue = 0; // a word is a 16-bit number
-// byte data = 0; // and a byte is an 8-bit number
 
 DigiPot::DigiPot (int ioPin) {
 	outputPin = ioPin;
-
 	pinMode(outputPin, OUTPUT);
+
 	// wake up the SPI bus.
 	SPI.begin(); 
 	SPI.setBitOrder(MSBFIRST);
@@ -23,6 +21,11 @@ void DigiPot::write (word outputValue)
 	data = lowByte(outputValue);
 	SPI.transfer(data);
 	digitalWrite(outputPin, HIGH);
+}
 
+void DigiPot::writeVolts(double volts)
+{
+	int input = (volts * 4096.0) / 5.0;
+	write(input);
 }
 

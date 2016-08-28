@@ -13,9 +13,9 @@ public :
 	static const int MAGENTA = 0xF81F;
 	static const int YELLOW = 0xFFE0;
 	static const int WHITE  = 0xFFFF;
-	
 };
-// #define MAUVE Color::rgbTo16Bit(118, 96, 137)
+
+#define MAUVE Color::rgbTo16Bit(118, 96, 137)
 
 #endif
 

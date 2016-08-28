@@ -48,7 +48,6 @@ int currentLayoutYPos = 0;
 int buttonYStart = 0;
 double lastInputVoltage = 1;
 
-int MAUVE = Color::rgbTo16Bit(198, 166, 207);
 int ACCENT_COLOR = MAUVE;
 
 DigiPot powerPot(DAC_OUTPUT_PIN);
@@ -107,7 +106,6 @@ void loop(void) {
 	double targetCurrent = 0.000001 * targetMicroAmps;
 	double targetVoltage = targetCurrent * (R2 + R1);
 
-	bool error = false;
 	if (targetVoltage > 10)
 		targetVoltage = 10;
 
@@ -116,28 +114,25 @@ void loop(void) {
 		targetVoltage = 6.5;
 
 	if (activeVoltage < 1) {
-		writeDac(1);
+		powerPot.writeVolts(1);
 		targetVoltage = 1;
 		lastInputVoltage = 1;
 		R2 = 0;
 		current = 0;
 	}
-	else if (error) {
-		writeDac(1);
-		lastInputVoltage = 1;
-	}
+
 	else if (abs(lastInputVoltage - targetVoltage) >= .01) {
 		// divide by 2 since opamp will double our target voltage
-		writeDac(targetVoltage / 2.0);
+		powerPot.writeVolts(targetVoltage / 2.0);
 		lastInputVoltage = targetVoltage;
 
-		// if (DEBUG_MODE) {
-		// 	Serial.print("targetVoltage: "); Serial.print(targetVoltage); Serial.println();
-		// 	Serial.print("current: "); Serial.print(current * 1000000); Serial.print(" uA"); Serial.println();
-		// 	Serial.print("target current: "); Serial.print(targetMicroAmps); Serial.print(" uA"); Serial.println();
-		// 	Serial.print("R2: "); Serial.print(R2); Serial.println();
-		// 	Serial.print("vOut: "); Serial.print(vOut); Serial.println();
-		// }
+		if (DEBUG_MODE) {
+			Serial.print("targetVoltage: "); Serial.print(targetVoltage); Serial.println();
+			Serial.print("current: "); Serial.print(current * 1000000); Serial.print(" uA"); Serial.println();
+			Serial.print("target current: "); Serial.print(targetMicroAmps); Serial.print(" uA"); Serial.println();
+			Serial.print("R2: "); Serial.print(R2); Serial.println();
+			Serial.print("vOut: "); Serial.print(vOut); Serial.println();
+		}
 	}
 
 	readTouchScreen();
@@ -182,13 +177,13 @@ void readTouchScreen() {
 	if (p.z < MINPRESSURE || p.z > MAXPRESSURE)
 		return;
 
-	// scale from 0->1023 to tft.width
+	// scale w/h from 0->1023 and take inverse for standard portrait orientation
 	p.x = tft.width() - map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
 	p.y = tft.height() - (tft.height() - map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
 
 	int width = tft.width() - (padding * 2);
 
-	// touch screen very bottom guves like 312 Y so - 20 for some leeway..
+	// touch screen very bottom guves like 312 Y so - 35 for some leeway..
 	// possibly need to get precise resistance for specific one and put it in for TouchScreen constr
 	if (p.y > buttonYStart - 35 && p.y < buttonYStart + 60) {
 		if (p.x < width / 2)
@@ -201,19 +196,11 @@ void readTouchScreen() {
 	}
 }
 
-void writeDac(double volts)
-{
-	int input = (volts * 4096.0) / 5.0;
-	powerPot.write(input);
-}
-
 void drawHomeScreen(bool ended) {
 	drawInfoBox("Insert Timer", String(getActiveTime()), true);
-
 	drawInfoBox("Kill Count", String(killCount), firstLoop || ended);
 	drawInfoBox("Lifetime Kills", String(lifeTimeKillCount), firstLoop || ended);
 }
-
 
 void drawButtons(bool redraw) {
 	int y = currentLayoutYPos + padding;
