@@ -5,20 +5,23 @@
 #include <TouchScreen.h>
 #include "Color.h"
 #include "ProbeState.h"
+#include "IUIController.h"
 
-class TouchUIController {
+class TouchUIController : public IUIController {
 public :
-	void initialize (ProbeState state);
+	TouchUIController(ProbeState* state);
+	 void initialize ();
+	 void update(double R2, double targetVoltage, bool ended);
+	 void readInput();
+
+protected :
 	void initializeLcd (Adafruit_TFTLCD& tft);
 	void drawHomeScreen(bool ended);
 	void drawInfoBox (String title, String data, bool redraw);
-	void readInput();
 	void drawButtons(bool redraw);
-	
-	bool isRedrawNeeded;
+
 	int currentLayoutYPos = 0;
 	int buttonYStart = 0;
-	ProbeState state;
 };
 
 #endif

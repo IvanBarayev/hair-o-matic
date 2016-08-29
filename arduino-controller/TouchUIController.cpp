@@ -35,17 +35,19 @@ const int ACCENT_COLOR = MAUVE;
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen touchScreen(XP, YP, XM, YM, 300);
 
-void TouchUIController::initialize(ProbeState state) {
+TouchUIController::TouchUIController(ProbeState* state) {
 	this->state = state;
+}
 
+void TouchUIController::initialize() {
 	initializeLcd(tft);
 	tft.fillScreen(Color::WHITE);
 }
 
 void TouchUIController::drawHomeScreen(bool ended) {
-	drawInfoBox("Insert Timer", String(state.getActiveTime()), true);
-	drawInfoBox("Kill Count", String(state.getKillCount()), state.isFirstLoop || ended);
-	drawInfoBox("Lifetime Kills", String(state.getLifeTimeCount()), state.isFirstLoop || ended);
+	drawInfoBox("Insert Timer", String(state->getActiveTime()), true);
+	drawInfoBox("Kill Count", String(state->getKillCount()), state->isFirstLoop || ended);
+	drawInfoBox("Lifetime Kills", String(state->getLifeTimeCount()), state->isFirstLoop || ended);
 }
 
 void TouchUIController::drawButtons(bool redraw) {
@@ -82,7 +84,7 @@ void TouchUIController::drawInfoBox (String title, String data, bool redraw) {
 	tft.setTextColor(Color::WHITE); tft.setTextSize(2);
 	// hack to get refresh fine switch to actual objects that know when to redraw like below class
 	// eventually
-	if (state.isFirstLoop) {
+	if (state->isFirstLoop) {
 		tft.fillRect(padding, y, width, height, ACCENT_COLOR);
 		tft.println(title);
 	} else
@@ -95,6 +97,27 @@ void TouchUIController::drawInfoBox (String title, String data, bool redraw) {
 	tft.setCursor(dataLabelStart, y + (padding * 4));
 	tft.setTextColor(Color::WHITE); tft.setTextSize(2);
 	tft.println(data);
+}
+
+void TouchUIController::update(double R2, double targetVoltage, bool ended) {
+	if (state->getIsRefreshNeeded()) {
+		currentLayoutYPos = 0;
+		drawHomeScreen(ended);
+
+		char voltLabel[32];
+		char volts[6];
+		char res[6];
+		dtostrf(targetVoltage, 2, 2, volts);
+		dtostrf(R2, 3, 0, res);
+
+		sprintf(voltLabel, "%s | %s", res, volts);
+		drawInfoBox("R | VOut", voltLabel, true);
+
+		drawInfoBox("Current[uA]", String(state->getTargetMicroAmps()), true);
+		drawButtons(state->isFirstLoop);
+
+		state->setIsRefreshNeeded(false);
+	}
 }
 
 void TouchUIController::readInput() {
@@ -118,11 +141,11 @@ void TouchUIController::readInput() {
 	// possibly need to get precise resistance for specific one and put it in for TouchScreen constr
 	if (p.y > buttonYStart - 35 && p.y < buttonYStart + 60) {
 		if (p.x < width / 2)
-			state.decreaseTargetCurrent();
-		else if (state.getTargetMicroAmps() <= 1000)
-			state.increaseTargetCurrent();
+			state->decreaseTargetCurrent();
+		else if (state->getTargetMicroAmps() <= 1000)
+			state->increaseTargetCurrent();
 
-		isRedrawNeeded = true;
+		state->setIsRefreshNeeded(true);
 	}
 }
 

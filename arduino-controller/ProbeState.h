@@ -10,6 +10,7 @@ private:
     long probeActiveStartTime = 0;
     bool isProbeActive = false;
     int targetMicroAmps = 550;
+    bool isRefreshNeeded = true;
 
 public:
     void initialize() {
@@ -45,18 +46,15 @@ public:
     }
 
     int getKillCount() { return killCount; }
-
-    void incrementKillCount() {}
+    void incrementKillCount() { killCount ++;}
 
     int getLifeTimeCount() { return lifeTimeKillCount; }
-
     void incrementLifeTimeCount() {
         lifeTimeKillCount++;
         IOUtils::saveEepromInt(lifeTimeKillCount, 0);
     }
 
     void setTargetMicroAmps(int target) { targetMicroAmps = target; }
-
     int getTargetMicroAmps() { return targetMicroAmps;}
 
     void setIsProbeActive(bool active) {
@@ -65,8 +63,10 @@ public:
 
         isProbeActive = active;
     }
-
     bool getIsProbeActive() { return isProbeActive; }
+
+    void setIsRefreshNeeded(bool active) {isRefreshNeeded = active; }
+    bool getIsRefreshNeeded() { return isRefreshNeeded; }
 
     bool isFirstLoop = true;
 };
