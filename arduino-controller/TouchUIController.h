@@ -10,9 +10,9 @@
 class TouchUIController : public IUIController {
 public :
 	TouchUIController(ProbeState* state);
-	 void initialize ();
-	 void update(double R2, double targetVoltage, bool ended);
-	 void readInput();
+	void initialize ();
+	void update(double R2, double targetVoltage, bool ended);
+	void readInput();
 
 protected :
 	void initializeLcd (Adafruit_TFTLCD& tft);

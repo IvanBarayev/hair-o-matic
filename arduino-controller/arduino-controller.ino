@@ -7,6 +7,7 @@
 #include "Color.h"
 #include "DigiPot.h"
 #include "TouchUIController.h"
+#include "AndroidUIController.h"
 #include "IOUtils.h"
 
 #define DEBUG_MODE false
@@ -16,7 +17,9 @@ const int BUZZER_IO_PIN = 44;
 const int DAC_OUTPUT_PIN = 22;
 
 ProbeState* state = new ProbeState();
-IUIController* uiController = new TouchUIController(state);
+IUIController* uiController = new AndroidUIController(state);
+// IUIController* uiController = new TouchUIController(state);
+// IUIController* android = new AndroidUIController(state);
 
 DigiPot powerPot(DAC_OUTPUT_PIN);
 long lastTickTime = 0;
@@ -96,6 +99,7 @@ void loop(void) {
 	}
 
 	uiController->readInput();
+	// android->readInput();
 	uiController->update(R2, targetVoltage, ended);
 
 	lastTickTime = state->getActiveTime();
@@ -113,9 +117,9 @@ bool isInsertEnd() {
 
 void playBuzzer() {
 	int hz = 110;
-	tone(BUZZER_IO_PIN, hz);
+	// tone(BUZZER_IO_PIN, hz);
 }
 
 void stopBuzzer() {
-	noTone(BUZZER_IO_PIN);
+	// noTone(BUZZER_IO_PIN);
 }
