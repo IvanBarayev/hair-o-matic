@@ -1,10 +1,11 @@
-package net.mabboud.hair_o_matic;
+package net.mabboud.hair_o_matic.audio_com;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import net.mabboud.hair_o_matic.DeviceCom;
 
-public class AudioArduinoCom implements IArduinoCom {
+public class AudioDeviceCom implements DeviceCom {
     public void incrementCurrent() {
         send("11111".getBytes());
     }

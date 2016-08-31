@@ -1,4 +1,4 @@
-package net.mabboud.hair_o_matic.AudioModem;
+package net.mabboud.hair_o_matic.audio_com;
 
 import android.media.AudioRecord;
 

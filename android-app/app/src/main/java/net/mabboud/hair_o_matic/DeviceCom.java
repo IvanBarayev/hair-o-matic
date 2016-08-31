@@ -1,6 +1,6 @@
 package net.mabboud.hair_o_matic;
 
-interface IArduinoCom {
+public interface DeviceCom {
     void incrementCurrent();
     void decrementCurrent();
 }

@@ -9,7 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import net.mabboud.hair_o_matic.AudioModem.AudioModem;
+import net.mabboud.hair_o_matic.audio_com.AudioModem;
 
 public class HomeActivity extends AppCompatActivity {
     private static final String LOG_TAG = "home";
