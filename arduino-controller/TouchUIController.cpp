@@ -99,7 +99,7 @@ void TouchUIController::drawInfoBox (String title, String data, bool redraw) {
 	tft.println(data);
 }
 
-void TouchUIController::update(double R2, double targetVoltage, bool ended) {
+void TouchUIController::update(bool ended) {
 	if (state->getIsRefreshNeeded()) {
 		currentLayoutYPos = 0;
 		drawHomeScreen(ended);
@@ -107,8 +107,8 @@ void TouchUIController::update(double R2, double targetVoltage, bool ended) {
 		char voltLabel[32];
 		char volts[6];
 		char res[6];
-		dtostrf(targetVoltage, 2, 2, volts);
-		dtostrf(R2, 3, 0, res);
+		dtostrf(state->lastInputVoltage, 2, 2, volts);
+		dtostrf(state->resistance, 3, 0, res);
 
 		sprintf(voltLabel, "%s | %s", res, volts);
 		drawInfoBox("R | VOut", voltLabel, true);

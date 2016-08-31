@@ -69,6 +69,8 @@ public:
     bool getIsRefreshNeeded() { return isRefreshNeeded; }
 
     bool isFirstLoop = true;
+    double lastInputVoltage = 1;
+    double resistance = 1;
 };
 
 #endif

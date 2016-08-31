@@ -79,7 +79,7 @@ void loop(void) {
 	if (activeVoltage < 1) {
 		powerPot.writeVolts(1);
 		targetVoltage = 1;
-		lastInputVoltage = 1;
+		state->lastInputVoltage = 1;
 		R2 = 0;
 		current = 0;
 	}
@@ -87,7 +87,8 @@ void loop(void) {
 	else if (abs(lastInputVoltage - targetVoltage) >= .01) {
 		// divide by 2 since opamp will double our target voltage
 		powerPot.writeVolts(targetVoltage / 2.0);
-		lastInputVoltage = targetVoltage;
+		state->lastInputVoltage = targetVoltage;
+		state->resistance = R2;
 
 		if (DEBUG_MODE) {
 			Serial.print("targetVoltage: "); Serial.print(targetVoltage); Serial.println();
@@ -100,7 +101,7 @@ void loop(void) {
 
 	uiController->readInput();
 	// android->readInput();
-	uiController->update(R2, targetVoltage, ended);
+	uiController->update(ended);
 
 	lastTickTime = state->getActiveTime();
 	state->isFirstLoop = false;

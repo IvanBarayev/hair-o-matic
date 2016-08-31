@@ -6,6 +6,11 @@ import android.media.AudioTrack;
 import net.mabboud.hair_o_matic.DeviceCom;
 
 public class AudioDeviceCom implements DeviceCom {
+    public static final int VOLTAGE_DATA_ID = 1;
+    public static final int RESISTENCE_DATA_ID = 2;
+    public static final int CURRENT_DATA_ID = 3;
+    public static final int ACTIVE_TIME_DATA_ID = 4;
+
     public void incrementCurrent() {
         send("11111".getBytes());
     }

@@ -11,7 +11,7 @@ class TouchUIController : public IUIController {
 public :
 	TouchUIController(ProbeState* state);
 	void initialize ();
-	void update(double R2, double targetVoltage, bool ended);
+	void update(bool ended);
 	void readInput();
 
 protected :
