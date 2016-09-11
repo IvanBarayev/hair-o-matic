@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include "AndroidUIController.h"
+#include "AudioUIController.h"
 
-const int ANDROID_INPUT_PIN = 14;
-const int ANDROID_OUTPUT_PIN = 8;
+const int AUDIO_INPUT_PIN = 14;
+const int AUDIO_OUTPUT_PIN = 8;
 
 const int PACKET_START_TONE = 1500;
 const int PACKET_END_TONE = 1000;
@@ -15,20 +15,20 @@ const int VOLTAGE_DATA_ID = 1;
 const int RESISTANCE_DATA_ID = 2;
 const int CURRENT_DATA_ID = 3;
 
-AndroidUIController::AndroidUIController(ProbeState* state) {
+AudioUIController::AudioUIController(ProbeState* state) {
 	this->state = state;
 }
 
-void AndroidUIController::initialize() {
+void AudioUIController::initialize() {
 }
 
-void AndroidUIController::update(bool ended) {
+void AudioUIController::update(bool ended) {
 	if (state->getIsRefreshNeeded()) {
 
 	}
 }
 
-void AndroidUIController::readInput() {
+void AudioUIController::readInput() {
 	sendTone(PACKET_START_TONE);
 
 	sendInt(state->lastInputVoltage, VOLTAGE_DATA_ID);
@@ -40,7 +40,7 @@ void AndroidUIController::readInput() {
 	delay(500);
 }
 
-void AndroidUIController::sendData (bool* data, int size) {
+void AudioUIController::sendData (bool* data, int size) {
 	for (int i = 0; i < size; i++) {
 		Serial.print(data[i]);
 
@@ -51,14 +51,14 @@ void AndroidUIController::sendData (bool* data, int size) {
 	}
 }
 
-void AndroidUIController::sendTone(int hz) {
-	tone(ANDROID_OUTPUT_PIN, hz);
+void AudioUIController::sendTone(int hz) {
+	tone(AUDIO_OUTPUT_PIN, hz);
 	delay(200);
-	noTone(ANDROID_OUTPUT_PIN);
+	noTone(AUDIO_OUTPUT_PIN);
 	delay(200);
 }
 
-void AndroidUIController::sendInt(int value, int id) {
+void AudioUIController::sendInt(int value, int id) {
 	bool idBinary[INT_BITS];
 	int4ToBinary(value, idBinary);
 	sendData(idBinary, INT_BITS);
@@ -68,12 +68,12 @@ void AndroidUIController::sendInt(int value, int id) {
 	sendData(binary, INT_BITS);
 }
 
-void AndroidUIController::intToBinary(int number, bool* binary) {
+void AudioUIController::intToBinary(int number, bool* binary) {
 	for (int i = 0; i < INT_BITS; i++)
 		binary[i] = (number & (1 << i)) ? 1 : 0;
 }
 
-void AndroidUIController::int4ToBinary(int number, bool* binary) {
+void AudioUIController::int4ToBinary(int number, bool* binary) {
 	for (int i = INT_BITS - 4; i < INT_BITS; i++)
 		binary[i] = (number & (1 << i)) ? 1 : 0;
 }

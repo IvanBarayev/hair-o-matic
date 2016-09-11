@@ -37,7 +37,7 @@ public:
 		}
 	}
 
-	static int scaledMode(int* array, int scale) {
+	static float scaledMode(int* array, int scale) {
 		float returnval = 0;
 		for (int i = NUM_READS / 2 - (scale / 2); i < (NUM_READS / 2 + (scale / 2)); i++)
 			returnval += array[i];
@@ -54,7 +54,11 @@ public:
 
 		bubbleSort(sortedValues, NUM_READS);
 
-		return scaledMode(sortedValues, 10);
+		float mode = scaledMode(sortedValues, 10);
+		if (mode < 1 && mode > 0)
+			return 1;
+		
+		return mode;
 	}
 };
 #endif

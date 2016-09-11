@@ -1,12 +1,12 @@
-#ifndef AndroidUIController_INCLUDED
-#define AndroidUIController_INCLUDED
+#ifndef AudioUIController_INCLUDED
+#define AudioUIController_INCLUDED
 #include "Color.h"
 #include "ProbeState.h"
 #include "IUIController.h"
 
-class AndroidUIController : public IUIController {
+class AudioUIController : public IUIController {
 public :
-	AndroidUIController(ProbeState* state);
+	AudioUIController(ProbeState* state);
 	void initialize ();
 	void update(bool ended);
 	void readInput();
