@@ -20,70 +20,79 @@ import java.util.List;
 public class ModemSignalProcessor {
     public interface PacketReceivedListener {
         void onDataReceived(int data, int id);
+        void onTextReceived(String text);
     }
 
     private static Logger log = LoggerFactory.getLogger(ModemSignalProcessor.class);
 
-    static final int PACKET_START_TONE = 1500;
-    static final int PACKET_END_TONE = 1000;
-    static final int OFF_TONE = 100;
-    static final int ON_TONE = 500;
-    static final int SIGNAL_EPSILON = 30;
+    static final int PACKET_START_TONE = 2000;
+    static final int PACKET_END_TONE = 100;
+    static final int SIGNAL_EPSILON = 40;
 
     private PacketReceivedListener packetListener;
-    private List<Boolean> signalBits = new LinkedList<>();
+    private List<Integer> signalWords = new LinkedList<>();
     private float lastTone = 0;
     boolean startToneReceived;
 
     public ModemSignalProcessor() {
-        packetListener = new PacketReceivedListener() {
-            public void onDataReceived(int data, int id) {
-                // empty impl for non null access
-            }
-        };
     }
 
     void toneDetected(float hz) {
+        Log.i("hi", String.format("Hz: %s", hz));
+
         if (isSameAsLastTone(hz))
             return;
 
         if (isPacketStartTone(hz)) {
             startToneReceived = true;
-            signalBits.clear();
+            signalWords.clear();
+
             log.warn(String.format("Packet Start Tone: %s", hz));
         } else if (isPacketEndTone(hz)) {
-            readPacket();
+            if (startToneReceived)
+                readPacket();
+            else
+                log.warn("Packet Dropped!! No start tone received");
 
-            signalBits.clear();
+            signalWords.clear();
             startToneReceived = false;
-        } else if (isOnTone(hz))
-            signalBits.add(true);
-        else if (isOffTone(hz))
-            signalBits.add(false);
+        } else if (hz > 200 && hz < 1800) {
+            int word = Math.round((hz - 200) / 100);
+            signalWords.add(word);
+        }
 
         lastTone = hz;
     }
 
     private void readPacket() {
-        while (signalBits.size() >= 20) {
-            List<Boolean> blockBits = signalBits.subList(0, 19);
+        if (signalWords.size() % 5 != 0)
+            log.warn(String.format("Packet Dropped Incorrect Length!! L: %d", signalWords.size()));
 
-            Boolean[] dataIdBinary = normalizeBits(blockBits.subList(0, 3));
-            int dataId = booleansToInt(dataIdBinary);
 
-            Boolean[] valueBinary = normalizeBits(blockBits.subList(3, 19));
+        while (signalWords.size() >= 5) {
+            List<Integer> blockBits = signalWords.subList(0, 5);
+
+            Integer[] dataIdBinary = normalizeBits(blockBits.subList(0, 1));
+            int dataId = dataIdBinary[0];
+
+           Integer[] valueBinary = normalizeBits(blockBits.subList(1, 5));
             int value = booleansToInt(valueBinary);
 
-            log.warn(String.format("Packet Received, ID:%s, Value:%s", dataId, value));
+            String valueBin = "";
+            for (Integer b : signalWords)
+                valueBin += b + ",";
+            log.warn(String.format("Packet Received, ID:%s, Value:%s, Binary:%s", dataId, value, valueBin));
+
+
             packetListener.onDataReceived(value, dataId);
 
-            signalBits = signalBits.subList(20, signalBits.size());
+            signalWords = signalWords.subList(5, signalWords.size());
         }
     }
 
-    private Boolean[] normalizeBits(List<Boolean> bits) {
-        Collections.reverse(bits);
-        return bits.toArray(new Boolean[bits.size()]);
+    private Integer[] normalizeBits(List<Integer> bits) {
+//        Collections.reverse(bits);
+        return bits.toArray(new Integer[bits.size()]);
     }
 
     private boolean isSameAsLastTone(float hz) {
@@ -98,33 +107,19 @@ public class ModemSignalProcessor {
         return isSameAsTone(hz, PACKET_START_TONE);
     }
 
-    private boolean isOffTone(float hz) {
-        return isSameAsTone(hz, OFF_TONE);
-    }
-
-    private boolean isOnTone(float hz) {
-        return isSameAsTone(hz, ON_TONE);
-    }
-
     private boolean isSameAsTone(float hz, float toneSameAs) {
         return hz < (SIGNAL_EPSILON + toneSameAs) && hz > (toneSameAs - SIGNAL_EPSILON);
     }
 
-    private int booleansToInt(Boolean[] arr) {
-        int n = 0;
-        for (Boolean b : arr)
-            n = (n << 1) | (b ? 1 : 0);
-        return n;
+    private int booleansToInt(Integer[] arr) {
+        return  arr[0] & 0xFF |
+                (arr[1] & 0xFF) << 4 |
+                (arr[2] & 0xFF) << 8 |
+                (arr[3] & 0xFF) << 12;
     }
 
     public void setPacketListener(PacketReceivedListener packetListener) {
         this.packetListener = packetListener;
     }
 
-    private String binaryToString(Boolean[] arr) {
-        String binary = "";
-        for (Boolean b : arr)
-            binary += b ? "1" : "0";
-        return binary;
-    }
 }

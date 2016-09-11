@@ -12,10 +12,10 @@ public :
 	void readInput();
 
 protected :
-	void sendData (bool* data, int size);
+	void sendData (int* data, int size);
 	void sendTone(int hz);
-	void intToBinary(int number, bool* binary);
-	void int4ToBinary(int number, bool* binary);
+	void intToBinary(int number, int* tones);
+	void int4ToBinary(int number, int* tones);
 	void sendInt(int value, int id);
 };
 

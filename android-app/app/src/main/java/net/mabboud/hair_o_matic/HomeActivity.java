@@ -5,13 +5,19 @@ import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.TextView;
+import net.mabboud.hair_o_matic.audio_com.AudioDeviceCom;
 import net.mabboud.hair_o_matic.audio_com.AudioModem;
+import net.mabboud.hair_o_matic.audio_com.ModemSignalProcessor;
 
-public class HomeActivity extends AppCompatActivity {
+import java.util.Locale;
+
+public class HomeActivity extends AppCompatActivity implements ModemSignalProcessor.PacketReceivedListener{
     private static final String LOG_TAG = "home";
     private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 235;
     private static final int MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS = 183;
@@ -31,7 +37,31 @@ public class HomeActivity extends AppCompatActivity {
 
     public void initModem() {
         requestRecordingPermission();
+        modem.setPacketListener(this);
         modem.listen();
+
+    }
+
+    public void onDataReceived(int data, int id) {
+        switch (id) {
+            case AudioDeviceCom.VOLTAGE_DATA_ID:
+                TextView voltField = (TextView) findViewById(R.id.voltTextField);
+                voltField.setText(String.format(Locale.getDefault(), "%dV", data));
+                break;
+            case AudioDeviceCom.CURRENT_DATA_ID:
+                TextView currentField = (TextView) findViewById(R.id.currentTextField);
+                currentField.setText(String.format(Locale.getDefault(), "%dma", data));
+                break;
+            case AudioDeviceCom.ACTIVE_TIME_DATA_ID:
+                TextView timeField = (TextView) findViewById(R.id.timeTextField);
+                timeField.setText(String.format(Locale.getDefault(), "%ds", data));
+                break;
+        }
+    }
+
+    public void onTextReceived(String text) {
+        TextView voltField = (TextView) findViewById(R.id.voltTextField);
+        voltField.setText(text);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -87,4 +117,13 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    protected void onPause() {
+        super.onPause();
+        modem.stop();
+    }
+
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        modem.stop();
+    }
 }

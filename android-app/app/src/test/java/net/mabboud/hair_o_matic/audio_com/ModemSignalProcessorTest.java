@@ -16,13 +16,12 @@ import static net.mabboud.hair_o_matic.audio_com.ModemSignalProcessor.*;
 
 public class ModemSignalProcessorTest {
     private HashMap<Integer, Integer> receivedData;
-    private PacketReceivedListener listener;
     private ModemSignalProcessor processor;
 
     @Before
     public void setup() {
         receivedData = new HashMap<>();
-        listener = new PacketReceivedListener() {
+        PacketReceivedListener listener = new PacketReceivedListener() {
             public void onDataReceived(int data, int id) {
                 receivedData.put(id, data);
             }
