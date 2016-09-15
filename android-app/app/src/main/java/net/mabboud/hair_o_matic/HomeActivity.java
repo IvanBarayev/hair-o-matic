@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import net.mabboud.hair_o_matic.audio_com.AudioDeviceCom;
 import net.mabboud.hair_o_matic.bluetooth_com.BlueToothDeviceCom;
@@ -58,13 +59,16 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         currentField.setText(String.format(locale, "%dμA", status.current));
 
         TextView timeField = (TextView) findViewById(R.id.timeTextField);
-        timeField.setText(String.format(locale, "%ds", status.timeActive));
+        timeField.setText(String.format(locale, "%ds", status.timer));
 
         TextView resistanceField = (TextView) findViewById(R.id.resistanceTextField);
         resistanceField.setText(String.format(locale, "%.2fΩ", status.resistance));
 
-        TextView messageField = (TextView) findViewById(R.id.messageTextField);
-        messageField.setText(status.message);
+        TextView messageField = (TextView) findViewById(R.id.messageTextView);
+        messageField.setText(messageField.getText() + "\n" + status.message);
+
+        ScrollView sv = (ScrollView)findViewById(R.id.messageScrollView);
+        sv.scrollTo(0, sv.getBottom());
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

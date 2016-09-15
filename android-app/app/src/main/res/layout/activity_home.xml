@@ -11,7 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/insert_time"
+            android:text="@string/insert_time_label"
             android:id="@+id/timeLabel"/>
     <TextView
             android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
         <Button
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/_50_a"
+                android:text="@string/minus_current_label"
                 android:id="@+id/minusCurrentButton" android:layout_weight=".5"
                 android:textColor="@color/colorAccent" android:textSize="20sp" android:textStyle="bold"
                 android:textAllCaps="false"
@@ -76,7 +76,7 @@
         <Button
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="@string/plus_50_a"
+                android:text="@string/plus_current_label"
                 android:id="@+id/plusCurrentButton" android:layout_weight="0.5"
                 android:background="@color/button_material_light"
                 android:textSize="20sp" android:elegantTextHeight="true" android:singleLine="false"
@@ -89,13 +89,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/message"
+            android:text="@string/messages_label"
             android:id="@+id/messageLabel" android:paddingTop="15dp"/>
-    <TextView
-            android:layout_width="372dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/no_connection"
-            android:id="@+id/messageTextField" android:layout_weight="0.41"/>
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/messageScrollView">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/messageTextView"/>
+    </ScrollView>
 
 </LinearLayout>

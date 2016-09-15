@@ -1,12 +1,11 @@
 #include <SPI.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_TFTLCD.h>
 #include <EEPROM.h>
 #include <TouchScreen.h>
 #include "Probestate.h"
 #include "Color.h"
 #include "DigiPot.h"
 #include "TouchUIController.h"
+#include "BlueToothUIController.h"
 #include "IOUtils.h"
 
 #define DEBUG_MODE false
@@ -20,7 +19,7 @@ const int MIN_KILL_TIME = 4;
 const int BUZZER_PAUSE_TIME = 5;
 
 ProbeState* state = new ProbeState();
-IUIController* uiController = new TouchUIController(state);
+IUIController* uiController = new BlueToothUIController(state);
 
 DigiPot powerPot(DAC_OUTPUT_PIN);
 long lastTickTime = 0;
@@ -99,7 +98,6 @@ void loop(void) {
 
 	lastTickTime = state->getActiveTime();
 	state->isFirstLoop = false;
-	delay(25);
 }
 
 bool isInsertStart(int activeVoltage) {
@@ -126,7 +124,7 @@ double getTargetCurrentForTime() {
 	// ramp up current over first half second to reduce inital shock
 	if (time <= .15)
 		return uaToAmps(150);
-	else if (time <= 0.5) 
+	else if (time <= 0.5)
 		return time * 2.0 * targetCurrent;
 
 	// very slowley add current for every second active to squeeze more current in
