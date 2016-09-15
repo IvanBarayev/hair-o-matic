@@ -49,8 +49,8 @@ public class SampleRateDetector {
      * href="http://en.wikipedia.org/wiki/Sampling_%28signal_processing%29"
      * >Wikipedia</a>
      */
-        final int validSampleRates[] = new int[]{ 5644800, 2822400, 352800, 192000, 176400, 96000,
-                88200, 50400, 50000, 4800, 47250, 44100, 44056, 37800, 32000, 22050, 16000, 11025, 8000, };
+        final int validSampleRates[] = new int[]{5644800, 2822400, 352800, 192000, 176400, 96000,
+                88200, 50400, 50000, 4800, 47250, 44100, 44056, 37800, 32000, 22050, 16000, 11025, 8000,};
     /*
      * Selecting default audio input source for recording since
      * AudioFormat.CHANNEL_CONFIGURATION_DEFAULT is deprecated and selecting

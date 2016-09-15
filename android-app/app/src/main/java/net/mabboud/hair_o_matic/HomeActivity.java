@@ -2,17 +2,22 @@ package net.mabboud.hair_o_matic;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import net.mabboud.hair_o_matic.audio_com.AudioDeviceCom;
-import net.mabboud.hair_o_matic.bluetooth_com.BlueToothDeviceCom;
+import net.mabboud.hair_o_matic.bluetooth_com.BluetoothDeviceCom;
 
 import java.util.Locale;
 
@@ -30,19 +35,31 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         initDeviceCom();
+
+        Button addCurrentBtn = (Button) findViewById(R.id.plusCurrentButton);
+        addCurrentBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deviceCom.incrementCurrent();
+            }
+        });
+
+        Button minusCurrentBtn = (Button) findViewById(R.id.minusCurrentButton);
+        minusCurrentBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deviceCom.decrementCurrent();
+            }
+        });
     }
 
     public void initDeviceCom() {
-//        deviceCom = createModemCom();
-        deviceCom = createBlueToothCom();
+        // deviceCom = createModemCom();
+        deviceCom = createBluetoothCom();
         deviceCom.setStatusListener(this);
+        deviceCom.initialize(this);
     }
 
-    public DeviceCom createBlueToothCom() {
-        BlueToothDeviceCom com = new BlueToothDeviceCom();
-        com.setStatusListener(this);
-        com.initialize(this);
-
+    public DeviceCom createBluetoothCom() {
+        BluetoothDeviceCom com = new BluetoothDeviceCom();
         return com;
     }
 
@@ -67,7 +84,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         TextView messageField = (TextView) findViewById(R.id.messageTextView);
         messageField.setText(messageField.getText() + "\n" + status.message);
 
-        ScrollView sv = (ScrollView)findViewById(R.id.messageScrollView);
+        ScrollView sv = (ScrollView) findViewById(R.id.messageScrollView);
         sv.scrollTo(0, sv.getBottom());
     }
 
@@ -76,6 +93,22 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         return true;
     }
 
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                if (resultCode == Activity.RESULT_OK) {
+                    deviceCom.setupComplete();
+                } else {
+                    // User did not enable Bluetooth or an error occurred
+                }
+                break;
+
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+                break;
+        }
+    }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void requestRecordingPermission() {
@@ -97,11 +130,12 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.MODIFY_AUDIO_SETTINGS);
 
-//        if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+            Log.d(LOG_TAG,"");
 //            modem.setSampleRate();
-//        else
-//            requestPermissions(new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
-//                    MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS);
+        else
+            requestPermissions(new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
+                    MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS);
     }
 
     @Override
@@ -128,5 +162,15 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 //                    modem.setSampleRate();
             }
         }
+    }
+
+    protected void onPause() {
+        super.onPause();
+        deviceCom.close();
+    }
+
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        deviceCom.close();
     }
 }

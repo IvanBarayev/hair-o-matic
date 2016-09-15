@@ -43,7 +43,7 @@ void BlueToothUIController::initialize() {
 }
 
 void BlueToothUIController::update(bool ended) {
-	delay(250);
+	delay(50);
 
 	if (state->getIsRefreshNeeded()) {
 		statusJson = "{";
@@ -59,18 +59,26 @@ void BlueToothUIController::update(bool ended) {
 		statusJson += "}";
 
 		BT.print(statusJson);
-		Serial.println(statusJson);
 		BT.flush();
 	}
 }
 
 void BlueToothUIController::readInput() {
-	delay(100);
+	// don't allow changes while probe inserted to avoid dangerous increases.. unless testing
+	if (state->getIsProbeActive() && state->resistance > 2)
+		return;
+
+	delay(50);
+	BT.flush();
 
 	String command = getBtInputCommand();
-	if (command == INC_CURRENT_COMMAND)
+	if (command == "") 
+		return;
+	
+	Serial.println(command);
+	if (command.endsWith(INC_CURRENT_COMMAND))
 		state->increaseTargetCurrent();
-	else if (command == DEC_CURRENT_COMMAND)
+	else if (command.endsWith(DEC_CURRENT_COMMAND))
 		state->decreaseTargetCurrent();
 }
 
@@ -85,7 +93,7 @@ String BlueToothUIController::getBtCommandResponse()
 String BlueToothUIController::getBtInputCommand()
 {
 	if (BT.available() > 0)
-		return BT.readStringUntil(']');
+		return BT.readStringUntil(']') + ']';
 
 	return "";
 }

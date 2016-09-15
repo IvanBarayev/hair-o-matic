@@ -22,11 +22,17 @@ public:
     }
 
     void decreaseTargetCurrent() {
+        if (targetMicroAmps <= 100)
+            return;
+        
         targetMicroAmps -= 50;
         IOUtils::saveEepromInt(targetMicroAmps, 4);
     }
 
     void increaseTargetCurrent() {
+        if (targetMicroAmps >= 1200)
+            return;
+
         targetMicroAmps += 50;
         IOUtils::saveEepromInt(targetMicroAmps, 4);
     }

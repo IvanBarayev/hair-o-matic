@@ -22,24 +22,37 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
-public class BlueToothDeviceCom extends DeviceCom {
-    final static String BT_DEVICE_NAME = "HairOmatic";
-    final static String INC_CURRENT_COMMAND = "[increase_current]";
-    final static String DEC_CURRENT_COMMAND = "[decrease_current]";
+public class BluetoothDeviceCom extends DeviceCom {
+    private final static String BT_DEVICE_NAME = "Hair-o-matic";
+    private static final String PAIRING_PIN = "1234";
 
-    private static final String LOG_TAG = "BlueTooth Com";
+    private final static String INC_CURRENT_COMMAND = "[increase_current]";
+    private final static String DEC_CURRENT_COMMAND = "[decrease_current]";
+
+    private static final String LOG_TAG = "Bluetooth Com";
     private static final UUID MY_UUID = UUID.fromString("1247e4e8-7ae4-11e6-8b77-86f30ca893d3");
 
     private BluetoothAdapter bluetoothAdapter;
     private BroadcastReceiver receiver;
     private Activity activity;
+    private ConnectedThread connection;
+    private ConnectThread connectWorker;
 
     public void incrementCurrent() {
+        if (connection != null)
+            connection.write(INC_CURRENT_COMMAND.getBytes());
+        else
+            errorStatusUpdate("Bluetooth connection not established yet");
     }
 
     public void decrementCurrent() {
+        if (connection != null)
+            connection.write(DEC_CURRENT_COMMAND.getBytes());
+        else
+            errorStatusUpdate("Bluetooth connection not established yet");
     }
 
+    @Override
     public void initialize(Activity activity) {
         this.activity = activity;
 
@@ -53,7 +66,29 @@ public class BlueToothDeviceCom extends DeviceCom {
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             activity.startActivityForResult(enableBtIntent, HomeActivity.REQUEST_ENABLE_BT);
+            return;
         }
+
+        setupComplete();
+    }
+
+    public void setupComplete() {
+        BluetoothDevice device = findPairedBlueToothDevice();
+        if (device == null) {
+            errorStatusUpdate("Could not find paired device.");
+            return;
+        }
+
+        connectWorker = new ConnectThread(device);
+        connectWorker.start();
+    }
+
+    public void close() {
+        if (connectWorker != null)
+            connectWorker.cancel();
+
+        if (connection != null)
+            connection.cancel();
     }
 
     protected void errorStatusUpdate(String message) {
@@ -64,13 +99,13 @@ public class BlueToothDeviceCom extends DeviceCom {
 
     protected BluetoothDevice findPairedBlueToothDevice() {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        // If there are paired devices
+
         if (pairedDevices.size() > 0) {
-            // Loop through paired devices
             for (BluetoothDevice device : pairedDevices) {
-                // Add the name and address to an array adapter to show in a ListView
-                if (isElectroDevice(device))
+                if (isElectroDevice(device)) {
+                    Log.w(LOG_TAG,"dname " + device.getName());
                     return device;
+                }
             }
         }
 
@@ -105,26 +140,23 @@ public class BlueToothDeviceCom extends DeviceCom {
     }
 
     protected void setPairingPin(BluetoothDevice device) {
-        byte[] pinBytes = "1234".getBytes();
+        byte[] pinBytes = PAIRING_PIN.getBytes();
         try {
             Method m = device.getClass().getMethod("setPin", byte[].class);
             m.invoke(device, pinBytes);
-            Log.d(LOG_TAG, "Success to add the PIN.");
-            try {
-                device.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(device, true);
-                Log.d(LOG_TAG, "Success to setPairingConfirmation.");
-            } catch (Exception e) {
-                Log.e(LOG_TAG, e.getMessage());
-                e.printStackTrace();
-            }
+            device.getClass().getMethod("setPairingConfirmation", boolean.class).invoke(device, true);
         } catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
             e.printStackTrace();
         }
     }
 
     private boolean isElectroDevice(BluetoothDevice device) {
         return device.getName().trim().equalsIgnoreCase(BT_DEVICE_NAME);
+    }
+
+    private void manageConnectedSocket(BluetoothSocket socket) {
+        connection = new ConnectedThread(socket);
+        connection.start();
     }
 
     private class ConnectThread extends Thread {
@@ -140,12 +172,16 @@ public class BlueToothDeviceCom extends DeviceCom {
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
                 // MY_UUID is the app's UUID string, also used by the server code
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-            } catch (IOException e) { }
+                UUID SERIAL_UUID = device.getUuids()[0].getUuid();
+                tmp = device.createRfcommSocketToServiceRecord(SERIAL_UUID);
+            } catch (IOException e) {
+                Log.w(LOG_TAG, "error creating socket" + e);
+            }
             mmSocket = tmp;
         }
 
         public void run() {
+            Log.d(LOG_TAG, "connecting");
             // Cancel discovery because it will slow down the connection
             bluetoothAdapter.cancelDiscovery();
 
@@ -157,7 +193,14 @@ public class BlueToothDeviceCom extends DeviceCom {
                 // Unable to connect; close the socket and get out
                 try {
                     mmSocket.close();
-                } catch (IOException closeException) { }
+                } catch (IOException closeException) {
+                    closeException.printStackTrace();
+                }
+
+                connectException.printStackTrace();
+                Log.w(LOG_TAG, connectException.toString());
+                Log.w(LOG_TAG, "connecting error");
+
                 return;
             }
 
@@ -166,17 +209,15 @@ public class BlueToothDeviceCom extends DeviceCom {
         }
 
 
-        /** Will cancel an in-progress connection, and close the socket */
+        /**
+         * Will cancel an in-progress connection, and close the socket
+         */
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
-    }
-
-    private void manageConnectedSocket(BluetoothSocket socket) {
-        ConnectedThread thread = new ConnectedThread(socket);
-        thread.start();
     }
 
     private class ConnectedThread extends Thread {
@@ -194,27 +235,52 @@ public class BlueToothDeviceCom extends DeviceCom {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytesRead; // bytes returned from read()
+            byte[] buffer = new byte[1024];
+            int bytesRead;
 
             // Keep listening to the InputStream until an exception occurs
+            String data = "";
             while (true) {
                 try {
                     bytesRead = mmInStream.read(buffer);
                     byte[] rawData = Arrays.copyOfRange(buffer, 0, bytesRead);
-                    String data = new String (rawData);
+                    data += new String(rawData);
 
-                    DeviceStatus status = new DeviceStatus();
-                    status.message = data;
+                    if (!data.startsWith("{"))
+                        data = data.replaceAll("[^\\{]*\\{", "");
 
-                    statusListener.statusUpdated(status);
+                    // don't read data till we have a full json block
+                    if (!data.contains("{") || !data.contains("}"))
+                        continue;
+
+                    String jsonData = data;
+                    if (!data.endsWith("}"))
+                        jsonData = data.substring(0, data.indexOf('}') + 1);
+
+                    try {
+                        final DeviceStatus status = DeviceStatus.fromJson(jsonData);
+                        activity.runOnUiThread(new Runnable() {
+                            public void run() {
+                                statusListener.statusUpdated(status);
+                            }
+                        });
+
+                    } catch (Exception ex) {
+                        data = "";
+                        Log.w(LOG_TAG, "Error corrupted json data. json: " + jsonData);
+                        continue;
+                    }
+
+                    // reset data after reading json block
+                    data = data.substring(data.indexOf('}') + 1, data.length());
                 } catch (IOException e) {
                     break;
                 }
@@ -225,14 +291,16 @@ public class BlueToothDeviceCom extends DeviceCom {
         public void write(byte[] bytes) {
             try {
                 mmOutStream.write(bytes);
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
 
         /* Call this from the main activity to shutdown the connection */
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
     }
 }
