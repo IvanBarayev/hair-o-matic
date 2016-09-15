@@ -1,27 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        tools:context="net.mabboud.hair_o_matic.HomeActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/container"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context="net.mabboud.hair_o_matic.HomeActivity"
+              tools:ignore="MergeRootFrame" android:weightSum="1">
 
-    <android.support.design.widget.AppBarLayout
-            android:layout_height="wrap_content"
+    <TextView
             android:layout_width="match_parent"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/insert_time"
+            android:id="@+id/timeLabel"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_connection"
+            android:id="@+id/timeTextField"/>
 
-        <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/voltage_input"
+            android:id="@+id/voltLabel" android:paddingTop="15dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_connection"
+            android:id="@+id/voltTextField"/>
 
-    </android.support.design.widget.AppBarLayout>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/resistance"
+            android:id="@+id/resistanceLabel" android:paddingTop="15dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_connection"
+            android:id="@+id/resistanceTextField"/>
 
-    <include layout="@layout/content_home"/>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/current"
+            android:id="@+id/currentLabel" android:paddingTop="15dp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_connection"
+            android:id="@+id/currentTextField"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="37dp" android:layout_gravity="center_horizontal" android:weightSum="1"
+    >
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/_50_a"
+                android:id="@+id/minusCurrentButton" android:layout_weight=".5"
+                android:textColor="@color/colorAccent" android:textSize="20sp" android:textStyle="bold"
+                android:textAllCaps="false"
+                android:layout_marginRight="3dp"
+                android:layout_marginLeft="3dp"
+                style="?android:attr/buttonBarButtonStyle" android:background="@color/button_material_light"/>
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="@string/plus_50_a"
+                android:id="@+id/plusCurrentButton" android:layout_weight="0.5"
+                android:background="@color/button_material_light"
+                android:textSize="20sp" android:elegantTextHeight="true" android:singleLine="false"
+                android:textAllCaps="false"
+                android:layout_marginRight="3dp"
+                android:layout_marginLeft="3dp"
+                style="?android:attr/buttonBarButtonStyle" android:textColor="@color/button_material_dark"/>
+    </LinearLayout>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/message"
+            android:id="@+id/messageLabel" android:paddingTop="15dp"/>
+    <TextView
+            android:layout_width="372dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/no_connection"
+            android:id="@+id/messageTextField" android:layout_weight="0.41"/>
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

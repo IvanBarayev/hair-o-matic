@@ -9,19 +9,62 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
-import net.mabboud.hair_o_matic.audio_com.AudioModem;
+import android.widget.TextView;
+import net.mabboud.hair_o_matic.audio_com.AudioDeviceCom;
+import net.mabboud.hair_o_matic.bluetooth_com.BlueToothDeviceCom;
 
-public class HomeActivity extends AppCompatActivity {
+import java.util.Locale;
+
+public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceStatusListener {
+    public final static int REQUEST_ENABLE_BT = 420;
+
     private static final String LOG_TAG = "home";
     private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 235;
     private static final int MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS = 183;
 
-    private AudioModem modem = new AudioModem(this);;
+    private DeviceCom deviceCom;
+    private Locale locale = Locale.getDefault();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        initModem();
+        initDeviceCom();
+    }
+
+    public void initDeviceCom() {
+//        deviceCom = createModemCom();
+        deviceCom = createBlueToothCom();
+        deviceCom.setStatusListener(this);
+    }
+
+    public DeviceCom createBlueToothCom() {
+        BlueToothDeviceCom com = new BlueToothDeviceCom();
+        com.setStatusListener(this);
+        com.initialize(this);
+
+        return com;
+    }
+
+    public DeviceCom createModemCom() {
+        requestRecordingPermission();
+        return new AudioDeviceCom(this);
+    }
+
+    public void statusUpdated(DeviceStatus status) {
+        TextView voltField = (TextView) findViewById(R.id.voltTextField);
+        voltField.setText(String.format(locale, "%.2fV", status.voltage));
+
+        TextView currentField = (TextView) findViewById(R.id.currentTextField);
+        currentField.setText(String.format(locale, "%dμA", status.current));
+
+        TextView timeField = (TextView) findViewById(R.id.timeTextField);
+        timeField.setText(String.format(locale, "%ds", status.timeActive));
+
+        TextView resistanceField = (TextView) findViewById(R.id.resistanceTextField);
+        resistanceField.setText(String.format(locale, "%.2fΩ", status.resistance));
+
+        TextView messageField = (TextView) findViewById(R.id.messageTextField);
+        messageField.setText(status.message);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -29,10 +72,6 @@ public class HomeActivity extends AppCompatActivity {
         return true;
     }
 
-    public void initModem() {
-        requestRecordingPermission();
-        modem.listen();
-    }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void requestRecordingPermission() {
@@ -54,11 +93,11 @@ public class HomeActivity extends AppCompatActivity {
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.MODIFY_AUDIO_SETTINGS);
 
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED)
-            modem.setSampleRate();
-        else
-            requestPermissions(new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
-                    MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS);
+//        if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+//            modem.setSampleRate();
+//        else
+//            requestPermissions(new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
+//                    MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS);
     }
 
     @Override
@@ -81,10 +120,9 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             case MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    modem.setSampleRate();
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+//                    modem.setSampleRate();
             }
         }
     }
-
 }

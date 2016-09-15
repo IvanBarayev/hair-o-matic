@@ -105,7 +105,7 @@ public class ModemSignalProcessorTest {
     private char[] idToBinary(Integer id) {
         String idBinary = Integer.toBinaryString(id);
         if (idBinary.length() < 4)
-            idBinary =  StringUtils.repeat("0", 4 - idBinary.length() + 1) + idBinary;
+            idBinary = StringUtils.repeat("0", 4 - idBinary.length() + 1) + idBinary;
 
         idBinary = StringUtils.reverse(idBinary);
         idBinary = idBinary.substring(0, 3);

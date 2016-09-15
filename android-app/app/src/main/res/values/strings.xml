@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">Hair-o-matic</string>
     <string name="action_settings">Settings</string>
+    <string name="no_connection">No connection</string>
+    <string name="resistance">Resistance</string>
+    <string name="current">Current</string>
+    <string name="_50_a">-50μA</string>
+    <string name="plus_50_a">+50μA</string>
+    <string name="message">Message</string>
+    <string name="voltage_input">Voltage Input</string>
+    <string name="insert_time">Insert Time</string>
+    <string name="blue_tooth_unsupported">Device does not support Bluetooth</string>
 </resources>
