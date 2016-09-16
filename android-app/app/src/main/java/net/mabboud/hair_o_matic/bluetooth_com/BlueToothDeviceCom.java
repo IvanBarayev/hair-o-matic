@@ -30,7 +30,6 @@ public class BluetoothDeviceCom extends DeviceCom {
     private final static String DEC_CURRENT_COMMAND = "[decrease_current]";
 
     private static final String LOG_TAG = "Bluetooth Com";
-    private static final UUID MY_UUID = UUID.fromString("1247e4e8-7ae4-11e6-8b77-86f30ca893d3");
 
     private BluetoothAdapter bluetoothAdapter;
     private BroadcastReceiver receiver;
@@ -81,6 +80,11 @@ public class BluetoothDeviceCom extends DeviceCom {
 
         connectWorker = new ConnectThread(device);
         connectWorker.start();
+    }
+
+    public void reconnect() {
+        close();
+        setupComplete();
     }
 
     public void close() {

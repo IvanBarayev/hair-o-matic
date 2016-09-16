@@ -49,6 +49,13 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
                 deviceCom.decrementCurrent();
             }
         });
+
+        Button reconnectBtn = (Button) findViewById(R.id.reconnectBtn);
+        reconnectBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                deviceCom.reconnect();
+            }
+        });
     }
 
     public void initDeviceCom() {
@@ -80,6 +87,12 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
         TextView resistanceField = (TextView) findViewById(R.id.resistanceTextField);
         resistanceField.setText(String.format(locale, "%.2fΩ", status.resistance));
+        
+        TextView sessionCountField = (TextView) findViewById(R.id.sessionCountTextField);
+        sessionCountField.setText(String.format(locale, "%d", status.sessionKills));
+
+        TextView lifeTimeCountField = (TextView) findViewById(R.id.lifeTimeCountTextField);
+        lifeTimeCountField.setText(String.format(locale, "%d", status.lifetimeKills));
 
         TextView messageField = (TextView) findViewById(R.id.messageTextView);
         messageField.setText(messageField.getText() + "\n" + status.message);
@@ -171,6 +184,11 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
+        deviceCom.close();
+    }
+
+    protected void onStop() {
+        super.onStop();
         deviceCom.close();
     }
 }

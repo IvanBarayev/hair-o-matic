@@ -26,6 +26,9 @@ public abstract class DeviceCom {
     public void setupComplete() {
     }
 
+    public void reconnect() {
+    }
+
     public interface DeviceStatusListener {
         public void statusUpdated(DeviceStatus status);
     }

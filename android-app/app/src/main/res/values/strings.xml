@@ -10,4 +10,6 @@
     <string name="voltage_input">Voltage Input</string>
     <string name="insert_time_label">Insert Time</string>
     <string name="blue_tooth_unsupported_error_message">Device does not support Bluetooth</string>
+    <string name="lifetime_count">Lifetime Count</string>
+    <string name="kill_count">Kill Count</string>
 </resources>

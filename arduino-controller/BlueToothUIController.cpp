@@ -64,7 +64,7 @@ void BlueToothUIController::update(bool ended) {
 }
 
 void BlueToothUIController::readInput() {
-	// don't allow changes while probe inserted to avoid dangerous increases.. unless testing
+	// don't allow changes while probe inserted to avoid potentially dangerous increases.. unless testing
 	if (state->getIsProbeActive() && state->resistance > 2)
 		return;
 

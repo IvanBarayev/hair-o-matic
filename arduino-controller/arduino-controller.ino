@@ -70,6 +70,10 @@ void loop(void) {
 	if (targetVoltage > MAX_VOLTAGE)
 		targetVoltage = MAX_VOLTAGE;
 
+	// initial read may be off so drop back down if voltage really high so no possible initial painful zap
+	if (targetVoltage > 5 && state->getPreciseActiveTime() < .6)
+		targetVoltage = 5;
+
 	if (activeVoltage < 1) {
 		powerPot.writeVolts(1);
 		targetVoltage = 1;
