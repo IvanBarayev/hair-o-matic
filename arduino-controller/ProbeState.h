@@ -27,6 +27,7 @@ public:
         
         targetMicroAmps -= 50;
         IOUtils::saveEepromInt(targetMicroAmps, 4);
+        isRefreshNeeded = true;
     }
 
     void increaseTargetCurrent() {
@@ -35,6 +36,7 @@ public:
 
         targetMicroAmps += 50;
         IOUtils::saveEepromInt(targetMicroAmps, 4);
+        isRefreshNeeded = true;
     }
 
     long getActiveTime() {

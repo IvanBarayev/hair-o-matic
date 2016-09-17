@@ -10,6 +10,7 @@ public:
 	virtual void initialize () = 0;
 	virtual void readInput() = 0;
 	virtual void update(bool ended) = 0;
+	bool useSlowRefresh = false;
 };
 
 #endif

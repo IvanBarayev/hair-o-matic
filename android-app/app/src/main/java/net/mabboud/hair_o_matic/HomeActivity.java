@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
     private DeviceCom deviceCom;
     private Locale locale = Locale.getDefault();
+    private TonePlayer tonePlayer = new TonePlayer(440);
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +58,8 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
                 deviceCom.reconnect();
             }
         });
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void initDeviceCom() {
@@ -76,6 +80,11 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     }
 
     public void statusUpdated(DeviceStatus status) {
+        if (status.timer > 0 || status.voltage > 1.0)
+            tonePlayer.play();
+        else
+            tonePlayer.stop();
+
         TextView voltField = (TextView) findViewById(R.id.voltTextField);
         voltField.setText(String.format(locale, "%.2fV", status.voltage));
 

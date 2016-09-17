@@ -40,6 +40,7 @@ TouchUIController::TouchUIController(ProbeState* state) {
 }
 
 void TouchUIController::initialize() {
+	useSlowRefresh = true;
 	initializeLcd(tft);
 	tft.fillScreen(Color::WHITE);
 }

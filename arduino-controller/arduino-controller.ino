@@ -9,6 +9,7 @@
 #include "IOUtils.h"
 
 #define DEBUG_MODE false
+#define USE_HARDWARE_BUZZER false
 
 const int PROBE_ACTIVE_SENSOR_PIN = 15;
 const int BUZZER_IO_PIN = 44;
@@ -49,6 +50,9 @@ void loop(void) {
 	}
 
 	if (state->getIsProbeActive() && state->getActiveTime() != lastTickTime)
+		state->setIsRefreshNeeded(true);
+
+	if (millis() % 1000 > 600 && !uiController->useSlowRefresh)
 		state->setIsRefreshNeeded(true);
 
 	long time = state->getActiveTime();
@@ -109,11 +113,17 @@ bool isInsertEnd() {
 }
 
 void playBuzzer() {
+	if (!USE_HARDWARE_BUZZER)
+		return;
+
 	int hz = 110;
 	tone(BUZZER_IO_PIN, hz);
 }
 
 void stopBuzzer() {
+	if (!USE_HARDWARE_BUZZER)
+		return;
+
 	noTone(BUZZER_IO_PIN);
 }
 
@@ -121,7 +131,8 @@ double getTargetCurrentForTime() {
 	double targetCurrent = uaToAmps(state->getTargetMicroAmps());
 	double time = state->getPreciseActiveTime();
 
-	// ramp up current over first half second to reduce inital shock
+	// ramp up current over first half second to reduce inital shock, have to have a decent initial
+	// current though so the analog input for constant current control can measure the voltage drop
 	if (time <= .15)
 		return uaToAmps(150);
 	else if (time <= 0.5)
