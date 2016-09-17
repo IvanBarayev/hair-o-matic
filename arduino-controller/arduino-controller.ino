@@ -37,6 +37,7 @@ void loop(void) {
 
 	if (isInsertStart(activeVoltage)) {
 		state->setIsProbeActive(true);
+		state->setIsRefreshNeeded(true);
 	} else if (activeVoltage == 0) {
 		if (isInsertEnd()) {
 			ended = true;
@@ -75,7 +76,7 @@ void loop(void) {
 		targetVoltage = MAX_VOLTAGE;
 
 	// initial read may be off so drop back down if voltage really high so no possible initial painful zap
-	if (targetVoltage > 5 && state->getPreciseActiveTime() < .6)
+	if (targetVoltage > 5 && state->getPreciseActiveTime() < .3)
 		targetVoltage = 5;
 
 	if (activeVoltage < 1) {
@@ -89,12 +90,13 @@ void loop(void) {
 	else if (abs(state->lastInputVoltage - targetVoltage) >= .01) {
 		// divide by 2 since opamp will double our target voltage
 		powerPot.writeVolts(targetVoltage / 2.0);
+
+		state->lastInputVoltage = targetVoltage;
 	}
 
-	if (state->resistance != R2 || state->lastInputVoltage != targetVoltage)
+	if (state->resistance != R2)
 		state->setIsRefreshNeeded(true);
 
-	state->lastInputVoltage = targetVoltage;
 	state->resistance = R2;
 
 	uiController->readInput();
@@ -140,7 +142,7 @@ double getTargetCurrentForTime() {
 
 	// very slowley add current for every second active to squeeze more current in
 	// without a noticible pain increase
-	else if(time < 10.0)
+	else if (time < 10.0)
 		return (uaToAmps(3) * (time - 0.5)) + targetCurrent;
 
 	return targetCurrent;
