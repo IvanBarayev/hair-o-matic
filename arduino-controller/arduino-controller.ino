@@ -80,22 +80,18 @@ void loop(void) {
 		state->lastInputVoltage = 1;
 		R2 = 0;
 		current = 0;
-	}
-
+	} 
+	// only update dac if voltage change significant as dac updates are fairly slow
 	else if (abs(state->lastInputVoltage - targetVoltage) >= .01) {
 		// divide by 2 since opamp will double our target voltage
 		powerPot.writeVolts(targetVoltage / 2.0);
-		state->lastInputVoltage = targetVoltage;
-		state->resistance = R2;
-
-		if (DEBUG_MODE) {
-			Serial.print("targetVoltage: "); Serial.print(targetVoltage); Serial.println();
-			Serial.print("current: "); Serial.print(current * 1000000); Serial.print(" uA"); Serial.println();
-			Serial.print("target current: "); Serial.print(state->getTargetMicroAmps()); Serial.print(" uA"); Serial.println();
-			Serial.print("R2: "); Serial.print(R2); Serial.println();
-			Serial.print("vOut: "); Serial.print(vOut); Serial.println();
-		}
 	}
+
+	if (state->resistance != R2 || state->lastInputVoltage != targetVoltage)
+		state->setIsRefreshNeeded(true);
+
+	state->lastInputVoltage = targetVoltage;
+	state->resistance = R2;
 
 	uiController->readInput();
 	uiController->update(ended);
@@ -134,7 +130,7 @@ double getTargetCurrentForTime() {
 	// very slowley add current for every second active to squeeze more current in
 	// without a noticible pain increase
 	else if(time < 10.0)
-		return (uaToAmps(4) * (time - 0.5)) + targetCurrent;
+		return (uaToAmps(3) * (time - 0.5)) + targetCurrent;
 
 	return targetCurrent;
 }

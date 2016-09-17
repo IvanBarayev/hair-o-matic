@@ -119,11 +119,6 @@
                 android:layout_marginRight="3dp"
                 android:layout_marginLeft="3dp"/>
     </LinearLayout>
-    <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="reconnect"
-            android:id="@+id/reconnectBtn"/>
     <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -132,7 +127,7 @@
             android:id="@+id/messageLabel" android:paddingTop="15dp"/>
     <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="140dp"
             android:id="@+id/messageScrollView">
         <TextView
                 android:layout_width="wrap_content"
@@ -140,5 +135,10 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/messageTextView"/>
     </ScrollView>
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="reconnect"
+            android:id="@+id/reconnectBtn"/>
 
 </LinearLayout>
