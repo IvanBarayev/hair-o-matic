@@ -12,4 +12,10 @@
     <string name="blue_tooth_unsupported_error_message">Device does not support Bluetooth</string>
     <string name="lifetime_count">Lifetime Count</string>
     <string name="kill_count">Kill Count</string>
+
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_enable_buzzer">Enable buzzer</string>
+    <string name="key_enable_buzzer">enable_buzzer_switch</string>
 </resources>

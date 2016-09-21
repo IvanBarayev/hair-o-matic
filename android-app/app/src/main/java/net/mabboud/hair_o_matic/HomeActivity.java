@@ -4,14 +4,17 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -65,6 +68,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     public void initDeviceCom() {
         // deviceCom = createModemCom();
         deviceCom = createBluetoothCom();
+
         deviceCom.setStatusListener(this);
         deviceCom.initialize(this);
     }
@@ -80,10 +84,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     }
 
     public void statusUpdated(DeviceStatus status) {
-        if (status.timer > 0 || status.voltage > 1.0)
-            tonePlayer.play();
-        else
-            tonePlayer.stop();
+        toggleBuzzer(status);
 
         TextView voltField = (TextView) findViewById(R.id.voltTextField);
         voltField.setText(String.format(locale, "%.2fV", status.voltage));
@@ -104,17 +105,26 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         lifeTimeCountField.setText(String.format(locale, "%d", status.lifetimeKills));
 
         TextView messageField = (TextView) findViewById(R.id.messageTextView);
-        messageField.setText(messageField.getText() + "\n" + status.message);
+        messageField.setText(String.format("%s\n%s", messageField.getText(), status.message));
 
         ScrollView sv = (ScrollView) findViewById(R.id.messageScrollView);
         sv.scrollTo(0, sv.getBottom());
+    }
+
+    private void toggleBuzzer(DeviceStatus status) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean buzzerEnabled = prefs.getBoolean(getString(R.string.key_enable_buzzer), true);
+
+        if ((status.timer > 0 || status.voltage > 1.0) && buzzerEnabled)
+            tonePlayer.play();
+        else
+            tonePlayer.stop();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
-
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -199,5 +209,15 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     protected void onStop() {
         super.onStop();
         deviceCom.close();
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                this.startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
