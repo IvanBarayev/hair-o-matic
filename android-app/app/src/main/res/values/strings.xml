@@ -18,4 +18,6 @@
 
     <string name="pref_title_enable_buzzer">Enable buzzer</string>
     <string name="key_enable_buzzer">enable_buzzer_switch</string>
+    <string name="pref_title_buzzer_volume">Buzzer Volume</string>
+    <string name="key_buzzer_volume">buzzer_volume_level</string>
 </resources>

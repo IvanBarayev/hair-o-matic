@@ -87,7 +87,7 @@ void loop(void) {
 		current = 0;
 	} 
 	// only update dac if voltage change significant as dac updates are fairly slow
-	else if (abs(state->lastInputVoltage - targetVoltage) >= .01) {
+	else if (abs(state->lastInputVoltage - targetVoltage) >= .001) {
 		// divide by 2 since opamp will double our target voltage
 		powerPot.writeVolts(targetVoltage / 2.0);
 
@@ -104,6 +104,9 @@ void loop(void) {
 
 	lastTickTime = state->getActiveTime();
 	state->isFirstLoop = false;
+
+	// delay important for current sensor initial pickup
+	delay(30);
 }
 
 bool isInsertStart(int activeVoltage) {

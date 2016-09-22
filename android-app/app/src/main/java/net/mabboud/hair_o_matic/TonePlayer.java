@@ -11,6 +11,8 @@ public class TonePlayer {
     private AudioTrack audioTrack;
 
     boolean isPlaying = false;
+    private Thread playerWorker;
+    private int volume;
 
     public TonePlayer(double toneFreqInHz) {
         this.toneFreqInHz = toneFreqInHz;
@@ -35,9 +37,8 @@ public class TonePlayer {
     }
 
     private void asyncPlayTrack(final double toneFreqInHz) {
-        new Thread(new Runnable() {
+        playerWorker = new Thread(new Runnable() {
             public void run() {
-
                 while (isPlaying) {
                     // will pause every x seconds so can know how long insertion has been without looking
                     // at the timer
@@ -45,18 +46,23 @@ public class TonePlayer {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        return;
                     }
                 }
             }
-        }).start();
+        });
+
+        playerWorker.start();
     }
 
     private void tryStopPlayer() {
         isPlaying = false;
         try {
+            if (playerWorker != null)
+                playerWorker.interrupt();
+
             // pause() appears to be more snappy in audio cutoff than stop()
-            audioTrack.stop();
+            audioTrack.pause();
             audioTrack.flush();
             audioTrack.release();
             audioTrack = null;
@@ -66,7 +72,9 @@ public class TonePlayer {
         }
     }
 
-    // below from http://stackoverflow.com/questions/2413426/playing-an-arbitrary-tone-with-android
+    /**
+     * below from http://stackoverflow.com/questions/2413426/playing-an-arbitrary-tone-with-android
+     */
     private void playTone(double freqInHz, double seconds) {
         int sampleRate = 8000;
 
@@ -127,6 +135,10 @@ public class TonePlayer {
                     sampleRate, AudioFormat.CHANNEL_OUT_MONO,
                     AudioFormat.ENCODING_PCM_16BIT, bufferSize,
                     AudioTrack.MODE_STREAM);
+
+            float gain = (float) (volume / 100.0);
+            audioTrack.setStereoVolume(gain, gain);
+
             audioTrack.play();
             audioTrack.write(generatedSnd, 0, generatedSnd.length);
         } catch (Exception e) {
@@ -135,4 +147,11 @@ public class TonePlayer {
         if (audioTrack != null) audioTrack.release();
     }
 
+    public void setVolume(int volume) {
+        this.volume = volume;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
 }

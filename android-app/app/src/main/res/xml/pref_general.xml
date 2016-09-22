@@ -1,7 +1,18 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:sample="http://schemas.android.com/apk/res-auto">
     <SwitchPreference
             android:key="@string/key_enable_buzzer"
             android:title="@string/pref_title_enable_buzzer"
             android:defaultValue="true"/>
 
+    <com.pavelsikun.seekbarpreference.SeekBarPreference
+            android:key="@string/key_buzzer_volume"
+            android:title="@string/pref_title_buzzer_volume"
+            android:defaultValue="100"
+
+            sample:msbp_minValue="0"
+            sample:msbp_maxValue="100"
+            sample:msbp_interval="1"
+            sample:msbp_measurementUnit="%"
+            sample:msbp_dialogEnabled="false"/>
 </PreferenceScreen>

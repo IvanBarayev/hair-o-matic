@@ -35,6 +35,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     private DeviceCom deviceCom;
     private Locale locale = Locale.getDefault();
     private TonePlayer tonePlayer = new TonePlayer(440);
+    private boolean buzzerEnabled;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +64,16 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         });
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        loadSettings();
+    }
+
+    private void loadSettings() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        buzzerEnabled = prefs.getBoolean(getString(R.string.key_enable_buzzer), true);
+
+        int volume = prefs.getInt(getString(R.string.key_buzzer_volume), 50);
+        tonePlayer.setVolume(volume);
     }
 
     public void initDeviceCom() {
@@ -112,9 +123,6 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
     }
 
     private void toggleBuzzer(DeviceStatus status) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean buzzerEnabled = prefs.getBoolean(getString(R.string.key_enable_buzzer), true);
-
         if ((status.timer > 0 || status.voltage > 1.0) && buzzerEnabled)
             tonePlayer.play();
         else
