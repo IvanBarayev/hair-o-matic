@@ -16,10 +16,6 @@ public abstract class DeviceCom {
     public void close() {
     }
 
-    public void setStatusListener(DeviceStatusListener statusListener) {
-        this.statusListener = statusListener;
-    }
-
     public void initialize(Activity activity) {
     }
 
@@ -27,6 +23,10 @@ public abstract class DeviceCom {
     }
 
     public void reconnect() {
+    }
+
+    public void setStatusListener(DeviceStatusListener statusListener) {
+        this.statusListener = statusListener;
     }
 
     public interface DeviceStatusListener {

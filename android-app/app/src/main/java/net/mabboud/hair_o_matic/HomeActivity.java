@@ -20,6 +20,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import net.mabboud.android_tone_player.ContinuousBuzzer;
+import net.mabboud.android_tone_player.OneTimeBuzzer;
+import net.mabboud.android_tone_player.TonePlayer;
 import net.mabboud.hair_o_matic.audio_com.AudioDeviceCom;
 import net.mabboud.hair_o_matic.bluetooth_com.BluetoothDeviceCom;
 
@@ -34,13 +37,23 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
     private DeviceCom deviceCom;
     private Locale locale = Locale.getDefault();
-    private TonePlayer tonePlayer = new TonePlayer(440);
+    private ContinuousBuzzer tonePlayer;
     private boolean buzzerEnabled;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         initDeviceCom();
+
+        tonePlayer = new ContinuousBuzzer();
+        tonePlayer.setPausePeriodSeconds(5);
+        tonePlayer.setPauseTimeInMs(1000);
+
+
+        ContinuousBuzzer buzzer = new ContinuousBuzzer();
+        // volume values are from 0-100
+        buzzer.setVolume(50);
+        buzzer.setToneFreqInHz(110);
 
         Button addCurrentBtn = (Button) findViewById(R.id.plusCurrentButton);
         addCurrentBtn.setOnClickListener(new View.OnClickListener() {
