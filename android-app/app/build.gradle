@@ -32,5 +32,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.google.code.gson:gson:2.3'
     compile 'com.pavelsikun:material-seekbar-preference:2.3.0+'
-    compile 'net.mabboud:android-tone-player:0.1'
+    compile 'net.mabboud:android-tone-player:0.2'
 }

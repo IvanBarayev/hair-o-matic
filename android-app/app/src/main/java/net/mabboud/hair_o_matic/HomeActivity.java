@@ -49,12 +49,6 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         tonePlayer.setPausePeriodSeconds(5);
         tonePlayer.setPauseTimeInMs(1000);
 
-
-        ContinuousBuzzer buzzer = new ContinuousBuzzer();
-        // volume values are from 0-100
-        buzzer.setVolume(50);
-        buzzer.setToneFreqInHz(110);
-
         Button addCurrentBtn = (Button) findViewById(R.id.plusCurrentButton);
         addCurrentBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
