@@ -5,6 +5,12 @@ Arduino controlled DC electrolysis (hair removal) machine. Can use an android ph
 
 ### Screenshots
 
-<img src="http://i.imgur.com/ClvWESQ.jpg" width="600">
 
-<img src="http://i.imgur.com/x7qUbX3.png" width="600">
+<img src="http://i.imgur.com/ClvWESQ.jpg" width="400">
+
+
+Older version with LCD touchscreen 
+
+<img src="http://i.imgur.com/yEN93nK.jpg" width="400">
+<img src="http://i.imgur.com/8dQJO9E.jpg" width="400">
+
