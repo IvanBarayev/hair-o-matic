@@ -13,6 +13,10 @@ import java.util.ArrayList;
 
 import static net.mabboud.hair_o_matic.audio_com.ModemSignalProcessor.*;
 
+/**
+ * note audio com is unfinished and has been abandoned in favor of blue tooth. tried using SoftModem lib but couldn't get it to work properly
+ * audio com is currently using a dinky audio modem implementation I  made that is only capable of 40-60 baud
+ */
 public class AudioModem {
     private static final String LOG_TAG = "audio modem";
 

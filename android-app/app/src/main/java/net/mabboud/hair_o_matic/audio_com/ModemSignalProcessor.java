@@ -17,6 +17,10 @@ import java.util.List;
  * - 16bit value
  * - packet end tone
  */
+/**
+ * note audio com is unfinished and has been abandoned in favor of blue tooth. tried using SoftModem lib but couldn't get it to work properly
+ * audio com is currently using a dinky audio modem implementation I  made that is only capable of 40-60 baud
+ */
 public class ModemSignalProcessor {
     public interface PacketReceivedListener {
         void onDataReceived(int data, int id);

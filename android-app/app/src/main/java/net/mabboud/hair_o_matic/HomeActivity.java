@@ -37,7 +37,7 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
     private DeviceCom deviceCom;
     private Locale locale = Locale.getDefault();
-    private ContinuousBuzzer tonePlayer;
+    private ContinuousBuzzer tonePlayer = new ContinuousBuzzer();
     private boolean buzzerEnabled;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +45,6 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
         setContentView(R.layout.activity_home);
         initDeviceCom();
 
-        tonePlayer = new ContinuousBuzzer();
         tonePlayer.setPausePeriodSeconds(5);
         tonePlayer.setPauseTimeInMs(1000);
 
@@ -179,7 +178,6 @@ public class HomeActivity extends AppCompatActivity implements DeviceCom.DeviceS
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED)
             Log.d(LOG_TAG,"");
-//            modem.setSampleRate();
         else
             requestPermissions(new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
                     MY_PERMISSIONS_REQUEST_MODIFY_AUDIO_SETTINGS);

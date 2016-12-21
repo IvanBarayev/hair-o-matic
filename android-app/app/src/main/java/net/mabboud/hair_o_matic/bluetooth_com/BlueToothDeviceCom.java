@@ -107,7 +107,7 @@ public class BluetoothDeviceCom extends DeviceCom {
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (isElectroDevice(device)) {
-                    Log.w(LOG_TAG,"dname " + device.getName());
+                    Log.w(LOG_TAG, "dname " + device.getName());
                     return device;
                 }
             }
@@ -164,14 +164,14 @@ public class BluetoothDeviceCom extends DeviceCom {
     }
 
     private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
+        private final BluetoothSocket socket;
+        private final BluetoothDevice device;
 
         public ConnectThread(BluetoothDevice device) {
             // Use a temporary object that is later assigned to mmSocket,
             // because mmSocket is final
             BluetoothSocket tmp = null;
-            mmDevice = device;
+            this.device = device;
 
             // Get a BluetoothSocket to connect with the given BluetoothDevice
             try {
@@ -181,7 +181,7 @@ public class BluetoothDeviceCom extends DeviceCom {
             } catch (IOException e) {
                 Log.w(LOG_TAG, "error creating socket" + e);
             }
-            mmSocket = tmp;
+            socket = tmp;
         }
 
         public void run() {
@@ -192,11 +192,11 @@ public class BluetoothDeviceCom extends DeviceCom {
             try {
                 // Connect the device through the socket. This will block
                 // until it succeeds or throws an exception
-                mmSocket.connect();
+                socket.connect();
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and get out
                 try {
-                    mmSocket.close();
+                    socket.close();
                 } catch (IOException closeException) {
                     closeException.printStackTrace();
                 }
@@ -209,7 +209,7 @@ public class BluetoothDeviceCom extends DeviceCom {
             }
 
             // Do work to manage the connection (in a separate thread)
-            manageConnectedSocket(mmSocket);
+            manageConnectedSocket(socket);
         }
 
 
@@ -218,7 +218,7 @@ public class BluetoothDeviceCom extends DeviceCom {
          */
         public void cancel() {
             try {
-                mmSocket.close();
+                socket.close();
             } catch (IOException e) {
             }
         }
@@ -228,6 +228,7 @@ public class BluetoothDeviceCom extends DeviceCom {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        String data = "";
 
         public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
@@ -248,51 +249,61 @@ public class BluetoothDeviceCom extends DeviceCom {
 
         public void run() {
             byte[] buffer = new byte[1024];
-            int bytesRead;
 
             // Keep listening to the InputStream until an exception occurs
-            String data = "";
             while (true) {
                 try {
-                    bytesRead = mmInStream.read(buffer);
-                    byte[] rawData = Arrays.copyOfRange(buffer, 0, bytesRead);
-                    data += new String(rawData);
-
-                    if (!data.startsWith("{"))
-                        data = data.replaceAll("[^\\{]*\\{", "");
-
-                    // don't read data till we have a full json block
-                    if (!data.contains("{") || !data.contains("}"))
-                        continue;
-
-                    String jsonData = data;
-                    if (!data.endsWith("}"))
-                        jsonData = data.substring(0, data.indexOf('}') + 1);
-
-                    try {
-                        final DeviceStatus status = DeviceStatus.fromJson(jsonData);
-                        activity.runOnUiThread(new Runnable() {
-                            public void run() {
-                                statusListener.statusUpdated(status);
-                            }
-                        });
-
-                    } catch (Exception ex) {
-                        data = "";
-                        Log.w(LOG_TAG, "Error corrupted json data. json: " + jsonData);
-                        continue;
-                    }
-
-                    // reset data after reading json block
-                    data = data.substring(data.indexOf('}') + 1, data.length());
+                    readJsonDataFromInput(buffer);
                 } catch (IOException e) {
                     break;
                 }
             }
         }
 
+        private void readJsonDataFromInput(byte[] buffer) throws IOException {
+            int bytesRead;
+            bytesRead = mmInStream.read(buffer);
+            byte[] rawData = Arrays.copyOfRange(buffer, 0, bytesRead);
+            data += new String(rawData);
+
+            if (!data.startsWith("{"))
+                data = data.replaceAll("[^\\{]*\\{", "");
+
+            // don't read data till we have a full json block
+            if (dataHasJsonBlock(data))
+                return;
+
+            String jsonData = data;
+            if (!data.endsWith("}"))
+                jsonData = data.substring(0, data.indexOf('}') + 1);
+
+            try {
+                notifyDeviceStatusUpdated(jsonData);
+            } catch (Exception ex) {
+                data = "";
+                Log.w(LOG_TAG, "Error corrupted json data. json: " + jsonData);
+                return;
+            }
+
+            // reset data after reading json block
+            data = data.substring(data.indexOf('}') + 1, data.length());
+        }
+
+        private void notifyDeviceStatusUpdated(String jsonData) {
+            final DeviceStatus status = DeviceStatus.fromJson(jsonData);
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    statusListener.statusUpdated(status);
+                }
+            });
+        }
+
+        private boolean dataHasJsonBlock(String data) {
+            return !data.contains("{") || !data.contains("}");
+        }
+
         /* Call this from the main activity to send data to the remote device */
-        public void write(byte[] bytes) {
+        void write(byte[] bytes) {
             try {
                 mmOutStream.write(bytes);
             } catch (IOException e) {
@@ -300,7 +311,7 @@ public class BluetoothDeviceCom extends DeviceCom {
         }
 
         /* Call this from the main activity to shutdown the connection */
-        public void cancel() {
+        void cancel() {
             try {
                 mmSocket.close();
             } catch (IOException e) {
